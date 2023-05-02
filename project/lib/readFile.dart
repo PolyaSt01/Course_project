@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'dart:convert';
 import 'dart:async';
+import 'dart:math';
+
 //запись в текстовый файл
 void writeFile (var lineToWrite) async {
   var filePath = p.join(Directory.current.path, 'assets', 'ct.txt');
@@ -22,64 +24,68 @@ void readFile () async {
   print(lowerFileContent);
 }
 
-moveUsedWords (var list1, var list2, var place) {
-  list1.add(list2[place]);
-  return list1;
+// //перемещаем названные города в другой список
+// moveCityName (var list1, var list2, var place) {
+//   list1.add(list2[place]);
+//   return list1;
+// }
+
+//проверка на присутствие названного города в списке
+isThereCity (var list, var city) {
+  var check = list.indexOf(city, 0);
+  return check;
 }
 
-void main() async {
-  var cityNames = ['краснодар', 'ростов', 'москва', 'новосибирск', 'армавир'];
-  var compName = 'краснодар';
-  var userName = 'ростов';
+void main() {
+  Random random = Random();
+  var cityNames = ['краснодар', 'ростов', 'москва', 'новосибирск', 'армавир', 'владивосток', 'анапа', 'красноярск', 'рыбинск', 'тихорецк', 'кисловодск'];
   var usedNames = [];
 
-  print('enter the city');
+  while(true) {
+    var randomElement = random.nextInt(cityNames.length);
+    var compName = cityNames[randomElement];
 
-  var choice = stdin.readLineSync(encoding: utf8)!;
+    print('computers city is $compName');
 
-  print('your choice is $choice');
+    cityNames.removeWhere((item) => item == compName);
 
-  var lenghtCompName = compName.length;
+    print('enter the city');
+
+    var choice = stdin.readLineSync(encoding: utf8)!.toLowerCase().trim().replaceAll('ё', 'е');
+
+    var lenghtCompName = compName.length;
+    var lenghtChoice = choice.length;
+
+    var checkingUserCityExist = isThereCity(cityNames, choice);
+
+    var checkingCompCityRepeat = isThereCity(usedNames, compName);
+    var checkingCompCityExist = isThereCity(cityNames, compName);
+
+    cityNames.removeWhere((item) => item == choice);
+
+    //проверки для города пользователя
+    if(checkingUserCityExist == -1){
+      print('введите другой город');
+      break;
+    }
 
     if (choice[0] != compName[lenghtCompName - 1]) {
-      print('enter the city');
-    } else{
-      print('good job');
-    }
-
-    var check = cityNames.indexOf(choice, 0);
-
-    if (check != -1) {
-      print('good job');
-    } else{
-      print('a city like this doesnt exist');
+      print('введите город с правильной буквы');
+      break;
     }
 
 
-    print(moveUsedWords(usedNames, cityNames, check));
+    //проверки для города компьютера
+    if (compName[0] != choice[lenghtChoice - 1]) {
+      randomElement = random.nextInt(cityNames.length);
+      compName = cityNames[randomElement];
+    }
 
+    cityNames.removeWhere((item) => item == choice);
 
+    print(cityNames);
 
-  // while(tr) {
-  //   var lenghtCompName = compName.length;
-  //
-  //   if (userName[0] != compName[lenghtCompName - 1]) {
-  //     print('enter the city');
-  //     break;
-  //   } else{
-  //     print('good job');
-  //   }
-  //
-  //   var check = cityNames.indexOf(userName, 0);
-  //
-  //   if (check != -1) {
-  //     print('good job');
-  //   } else{
-  //     print('a city like this doesnt exist');
-  //     break;
-  //   }
-  //
-  // }
+  }
 
 
 
