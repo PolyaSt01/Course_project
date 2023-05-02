@@ -15,7 +15,7 @@ class MyForm extends StatefulWidget {
 class MyFormState extends State<MyForm> {
   final _formKey = GlobalKey<FormState>();
 
-  var usersCity;
+  var userCityName;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class MyFormState extends State<MyForm> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 65,),
+                        const SizedBox(height: 60,),
 
                         Text('Введите город',
                           style: TextStyle(fontSize: 24, fontFamily: 'Montserrat'),
@@ -61,7 +61,7 @@ class MyFormState extends State<MyForm> {
                             if (value!.isEmpty) {
                               return 'Введите город';
                             } else {
-                              usersCity = value;
+                              userCityName = value;
                             };
 
                           },
@@ -82,8 +82,8 @@ class MyFormState extends State<MyForm> {
                                               const SnackBar(content: Text('Успешное вычисление'), backgroundColor: Colors.green,)
                                           );
                                           setState(() {
-                                            if (!(usersCity.isEmpty)) {
-                                              print(usersCity);
+                                            if (!(userCityName.isEmpty)) {
+                                              print(userCityName);
                                             };
                                           });
                                         };
@@ -101,14 +101,14 @@ class MyFormState extends State<MyForm> {
 
                           ),
 
-                        const SizedBox(height: 65,),
+                        const SizedBox(height: 70,),
 
                         SizedBox(
                           width: 390,
                           child:
                           Text('Краснодар',
                             style: TextStyle(
-                              fontSize: 24,
+                              fontSize: 32,
                               fontFamily: 'Montserrat',
                               color: Colors.black,
                             ),
