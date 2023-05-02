@@ -41,10 +41,10 @@ void main() {
   var cityNames = ['краснодар', 'ростов', 'москва', 'новосибирск', 'армавир', 'владивосток', 'анапа', 'красноярск', 'рыбинск', 'тихорецк', 'кисловодск'];
   var usedNames = [];
 
-  while(true) {
-    var randomElement = random.nextInt(cityNames.length);
-    var compName = cityNames[randomElement];
+  var randomElement = random.nextInt(cityNames.length);
+  var compName = cityNames[randomElement];
 
+  while(true) {
     print('computers city is $compName');
 
     cityNames.removeWhere((item) => item == compName);
@@ -63,7 +63,7 @@ void main() {
 
     cityNames.removeWhere((item) => item == choice);
 
-    //проверки для города пользователя
+    //проверки города пользователя
     if(checkingUserCityExist == -1){
       print('введите другой город');
       break;
@@ -74,11 +74,12 @@ void main() {
       break;
     }
 
+    //проверки города компьютера
+    compName = cityNames.firstWhere((element) => element[0] == choice[lenghtChoice - 1], orElse: () => '-1');
 
-    //проверки для города компьютера
-    if (compName[0] != choice[lenghtChoice - 1]) {
-      randomElement = random.nextInt(cityNames.length);
-      compName = cityNames[randomElement];
+    if (compName == '-1') {
+      print('вы победили');
+      break;
     }
 
     cityNames.removeWhere((item) => item == choice);
