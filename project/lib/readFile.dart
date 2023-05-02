@@ -13,6 +13,7 @@ void writeFile (var lineToWrite) async {
 
   await file.writeAsString('\n$lowerLineToWrite', mode: FileMode.append);
 }
+
 //чтение текстового файла
 void readFile () async {
   var filePath = p.join(Directory.current.path, 'assets', 'ct.txt');
@@ -35,33 +36,46 @@ isThereCity (var list, var city) {
   var check = list.indexOf(city, 0);
   return check;
 }
+//приводим в общий вид
+generalView (var name) {
+  var generalViewName = name.toLowerCase().trim().replaceAll('ё', 'е');
+  return generalViewName;
+}
+//проверка на буквы ь, ъ, ы, й на конце слова
+getLastLetter (var name) {
+  const exceptLetters = ['ъ', 'ь', 'ы', 'й'];
+  var lastLatter = name[name.length - 1];
+
+  if(exceptLetters.indexOf(lastLatter, 0) != -1) {
+    return name[name.length - 2];
+  }
+  return lastLatter;
+}
 
 void main() {
   Random random = Random();
-  var cityNames = ['краснодар', 'ростов', 'москва', 'новосибирск', 'армавир', 'владивосток', 'анапа', 'красноярск', 'рыбинск', 'тихорецк', 'кисловодск'];
-  var usedNames = [];
+  var cityNames = ['краснодар', 'ростов', 'москва', 'курск', 'армавир', 'владивосток', 'анапа', 'рыбинск', 'казань', 'нижний новгород', 'дигора'];
 
   var randomElement = random.nextInt(cityNames.length);
-  var compName = cityNames[randomElement];
+  var computersCity = cityNames[randomElement];
 
   while(true) {
-    print('computers city is $compName');
+    generalView(computersCity);
 
-    cityNames.removeWhere((item) => item == compName);
+    print('computers city is $computersCity');
+
+    cityNames.removeWhere((item) => item == computersCity);
 
     print('enter the city');
 
-    var choice = stdin.readLineSync(encoding: utf8)!.toLowerCase().trim().replaceAll('ё', 'е');
+    var usersCity = stdin.readLineSync(encoding: utf8)!.toLowerCase().trim().replaceAll('ё', 'е');
 
-    var lenghtCompName = compName.length;
-    var lenghtChoice = choice.length;
+    var lenghtComputersCity = computersCity.length;
+    var lenghtUsersCity = usersCity.length;
 
-    var checkingUserCityExist = isThereCity(cityNames, choice);
+    var checkingUserCityExist = isThereCity(cityNames, usersCity);
 
-    var checkingCompCityRepeat = isThereCity(usedNames, compName);
-    var checkingCompCityExist = isThereCity(cityNames, compName);
-
-    cityNames.removeWhere((item) => item == choice);
+    cityNames.removeWhere((item) => item == usersCity);
 
     //проверки города пользователя
     if(checkingUserCityExist == -1){
@@ -69,26 +83,23 @@ void main() {
       break;
     }
 
-    if (choice[0] != compName[lenghtCompName - 1]) {
+    if (usersCity[0] != getLastLetter(computersCity)) {
       print('введите город с правильной буквы');
       break;
     }
 
     //проверки города компьютера
-    compName = cityNames.firstWhere((element) => element[0] == choice[lenghtChoice - 1], orElse: () => '-1');
+    computersCity = cityNames.firstWhere((element) => element[0] == getLastLetter(usersCity), orElse: () => '-1');
 
-    if (compName == '-1') {
+    if (computersCity == '-1') {
       print('вы победили');
       break;
     }
 
-    cityNames.removeWhere((item) => item == choice);
-
     print(cityNames);
 
+
   }
-
-
 
   // writeFile('РЫБИНск');
   // readFile();
