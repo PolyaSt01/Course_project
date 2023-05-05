@@ -3,6 +3,7 @@ import 'package:path/path.dart' as p;
 import 'dart:convert';
 import 'dart:async';
 import 'dart:math';
+//import 'package:flutter/services.dart' show rootBundle;
 
 //запись в текстовый файл
 void writeFile (var lineToWrite) async {
@@ -15,21 +16,16 @@ void writeFile (var lineToWrite) async {
 }
 
 //чтение текстового файла
-void readFile () async {
+readFile () async {
   var filePath = p.join(Directory.current.path, 'assets', 'ct.txt');
   File file = File(filePath);
 
-  var fileContent = await file.readAsString();
+  var fileContent = await file.readAsLines();
 //приводим в общий вид
-  late var lowerFileContent = fileContent.toLowerCase().trim().replaceAll('ё', 'е');
-  print(lowerFileContent);
+  //late var lowerFileContent = fileContent.toLowerCase().trim().replaceAll('ё', 'е');
+  //print(lowerFileContent);
+  return fileContent;
 }
-
-// //перемещаем названные города в другой список
-// moveCityName (var list1, var list2, var place) {
-//   list1.add(list2[place]);
-//   return list1;
-// }
 
 //проверка на присутствие названного города в списке
 isThereCity (var list, var city) {
@@ -45,62 +41,96 @@ generalView (var name) {
 getLastLetter (var name) {
   const exceptLetters = ['ъ', 'ь', 'ы', 'й'];
   var lastLatter = name[name.length - 1];
+  //var penultimateLetter = name[name.length - 2];
 
-  if(exceptLetters.indexOf(lastLatter, 0) != -1) {
+  if(name.length < 1){
+    return lastLatter;
+  } else if (exceptLetters.indexOf(lastLatter, 0) != -1 && exceptLetters.indexOf(name[name.length - 2], 0) != -1) {
+    return name[name.length - 3];
+  } else if (exceptLetters.indexOf(lastLatter, 0) != -1) {
     return name[name.length - 2];
+  } else {
+    return lastLatter;
   }
-  return lastLatter;
 }
 
-void main() {
-  Random random = Random();
-  var cityNames = ['краснодар', 'ростов', 'москва', 'курск', 'армавир', 'владивосток', 'анапа', 'рыбинск', 'казань', 'нижний новгород', 'дигора'];
-
-  var randomElement = random.nextInt(cityNames.length);
-  var computersCity = cityNames[randomElement];
-
+game (var computersCity, var fileContent, var userCityName) {
   while(true) {
-    generalView(computersCity);
 
-    print('computers city is $computersCity');
-
-    cityNames.removeWhere((item) => item == computersCity);
-
-    print('enter the city');
-
-    var usersCity = stdin.readLineSync(encoding: utf8)!.toLowerCase().trim().replaceAll('ё', 'е');
-
-    var lenghtComputersCity = computersCity.length;
-    var lenghtUsersCity = usersCity.length;
-
-    var checkingUserCityExist = isThereCity(cityNames, usersCity);
-
-    cityNames.removeWhere((item) => item == usersCity);
-
-    //проверки города пользователя
-    if(checkingUserCityExist == -1){
-      print('введите другой город');
-      break;
-    }
-
-    if (usersCity[0] != getLastLetter(computersCity)) {
-      print('введите город с правильной буквы');
-      break;
-    }
+    computersCity = fileContent.firstWhere((element) => element[0] == getLastLetter(userCityName), orElse: () => '-1');
 
     //проверки города компьютера
-    computersCity = cityNames.firstWhere((element) => element[0] == getLastLetter(usersCity), orElse: () => '-1');
-
     if (computersCity == '-1') {
       print('вы победили');
       break;
     }
 
-    print(cityNames);
+    fileContent.removeWhere((item) => item == computersCity);
 
+    print('computers city is  ${generalView(computersCity)}');
+
+    //проверки города пользователя
+    var checkingUserCityExist = isThereCity(fileContent, userCityName);
+
+    if(checkingUserCityExist == -1){
+      print('checking user city exist введите другой город');
+      break;
+    }
+
+    if (getLastLetter(userCityName) != computersCity[0]) {
+      print('введите город с правильной буквы');
+      break;
+    }
+
+
+    fileContent.removeWhere((item) => item == userCityName);
+
+    return computersCity;
 
   }
 
-  // writeFile('РЫБИНск');
-  // readFile();
+}
+
+void main () async {
+  Random random = Random();
+
+  var filePath = p.join(Directory.current.path, 'assets', 'ct.txt');
+  File file = File(filePath);
+
+  var fileContent = await file.readAsLines();
+
+  while(true) {
+    print('enter the city');
+
+    var usersCity = stdin.readLineSync(encoding: utf8)!.toLowerCase().trim().replaceAll('ё', 'е');
+
+    //проверки города пользователя
+    var checkingUserCityExist = isThereCity(fileContent, usersCity);
+
+    if(checkingUserCityExist == -1){
+      print('введите другой город');
+      break;
+    }
+
+    var computersCity = fileContent.firstWhere((element) => element[0] == getLastLetter(usersCity), orElse: () => '-1');
+
+    generalView(computersCity);
+
+    print('computers city is $computersCity');
+
+    //проверки города пользователя
+    if (getLastLetter(usersCity) != computersCity[0]) {
+      print('введите город с правильной буквы');
+      break;
+    }
+
+    //проверки города компьютера
+    if (computersCity == '-1') {
+      print('вы победили');
+      break;
+    }
+
+    fileContent.removeWhere((item) => item == computersCity);
+    fileContent.removeWhere((item) => item == usersCity);
+  }
 }
