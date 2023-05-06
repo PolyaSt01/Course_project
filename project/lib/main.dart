@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 import "dart:io";
-import "readFile.dart";
 import "mainscreen.dart";
-
-import 'package:path/path.dart' as p;
-import 'dart:convert';
-import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/services.dart' show rootBundle;
 
@@ -43,8 +37,9 @@ class MyFormState extends State<MyForm> {
   }
 
   var computersCity;
-  var userCityName = '';
+  var userCityName;
   var usedCityName = [];
+  var result = '';
 
   final _controller = TextEditingController();
 
@@ -55,7 +50,6 @@ class MyFormState extends State<MyForm> {
   @override
   void initState() {
     super.initState();
-    _controller.text = userCityName;
     _controller.addListener(_changeName);
   }
   @override
@@ -121,58 +115,78 @@ class MyFormState extends State<MyForm> {
                             Container(
                               alignment: Alignment.center,
                               width: 360,
+                              padding: EdgeInsets.only(top: 0, bottom:0, left:35, right:20),
                               child:
-                              ElevatedButton(
-                                  onPressed: () async {
+                                  Row(
+                                    children: [
+                                      ElevatedButton(
+                                          onPressed: () async {
+                                            //получаем доступ к текстовому файлу и его данным
+                                            var assetFileTxt = await rootBundle.loadString('assets/ct.txt');
+                                            var fileContent = assetFileTxt.split('\n');
 
-                                    var assetFileTxt = await rootBundle.loadString('assets/ct.txt');
-                                    var fileContent = assetFileTxt.split('\n');
+                                            if(_formKey.currentState!.validate()) {
+                                              setState(() {
+                                                //проверка на повторяемость города пользователя и на совпадение с нашим списком городов
+                                                if(fileContent.indexOf(generalView(userCityName), 0) != -1 && usedCityName.indexOf(generalView(userCityName), 0) == -1) {
+                                                  if (computersCity != null){
+                                                    result = computersCity;
 
-                                    if(_formKey.currentState!.validate()) {
-                                      setState(() {
-                                        if(fileContent.indexOf(generalView(userCityName), 0) != -1 && usedCityName.indexOf(generalView(userCityName), 0) == -1 && usedCityName.indexOf(computersCity, 0) == -1) {
+                                                    if (getLastLetter(computersCity) != userCityName[0]) {
+                                                      result = 'Введите город с правильной буквы';
+                                                      return;
+                                                    }
+                                                  }
 
-                                          computersCity = fileContent.firstWhere((element) => element[0] == getLastLetter(generalView(userCityName)), orElse: () => 'Вы победили');
+                                                  //ищем подходящий город для компьютера
+                                                  computersCity = fileContent.firstWhere((element) => element[0] == getLastLetter(generalView(userCityName)), orElse: () => 'Вы победили');
 
-                                          if (computersCity == 'Вы победили') {
-                                            //print('Вы победили');
-                                            return;
-                                          }
+                                                  result = computersCity;
 
-                                          usedCityName.add(computersCity);
+                                                  //проверка на повторяемость города компьютера
+                                                  if(usedCityName.indexOf(computersCity, 0) != -1){
+                                                    result = 'Вы победили';
+                                                    return;
+                                                  }
 
-                                          if (getLastLetter(generalView(userCityName)) != computersCity[0]) {
-                                            computersCity = 'Введите город с правильной буквы';
-                                            //print('введите город с правильной буквы');
-                                            return;
-                                          }
+                                                  if (computersCity == 'Вы победили') {
+                                                    result = 'Вы победили';
+                                                    return;
+                                                  }
 
-                                          usedCityName.add(generalView(userCityName));
+                                                  usedCityName.add(computersCity);
+                                                  usedCityName.add(generalView(userCityName));
+                                                } else {
+                                                  result = 'Введите другой город';
+                                                  usedCityName.clear();
+                                                }
+                                              });
+                                            };
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            primary: Color.fromRGBO(240, 207, 101, 1),
+                                            fixedSize: const Size(135, 55),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10.0),
+                                            ),
+                                          ),
+                                          child: Text('Ок', style: TextStyle(fontSize: 24, fontFamily: 'Montserrat', color: Colors.black),)
+                                      ),
 
-                                          print(fileContent);
-                                          print(usedCityName);
+                                      const SizedBox(width: 40,),
 
-                                        } else if (usedCityName.indexOf(computersCity, 0) == -1) {
-                                          computersCity = 'Вы победили';
-                                        }
-                                        else {
-                                          computersCity = 'Введите другой город';
-                                          usedCityName.clear();
-                                        }
-                                      });
-                                    };
-                                  },
-
-                                  style: ElevatedButton.styleFrom(
-                                    primary: Color.fromRGBO(240, 207, 101, 1),
-                                    fixedSize: const Size(135, 55),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
+                                      TextButton(
+                                          onPressed: () async {
+                                            final resultButton = await Navigator.pushNamed(context, '/');
+                                          },
+                                          child: Text('Сдаюсь', style: TextStyle(fontSize: 24, fontFamily: 'Montserrat', color: Color.fromRGBO(0, 0, 0, 0.6)),),
+                                          style: TextButton.styleFrom(
+                                            fixedSize: const Size(110, 55),
+                                          ),
+                                      )
+                                    ],
                                   ),
-
-                                  child: Text('Ок', style: TextStyle(fontSize: 24, fontFamily: 'Montserrat', color: Colors.black),)
-                              ),),
+                            ),
 
                           ),
 
@@ -181,7 +195,7 @@ class MyFormState extends State<MyForm> {
                           SizedBox(
                             width: 390,
                             child:
-                            Text('$computersCity',
+                            Text('$result',
                               style: TextStyle(
                                 fontSize: 32,
                                 fontFamily: 'Montserrat',
@@ -215,8 +229,5 @@ void main() => runApp(
         '/':(BuildContext context) => const MainScreen(),
         '/second':(BuildContext context) => MyForm(),
       },
-      // home: Scaffold(
-      //   body: MyForm(),
-      // ),
     )
 );
