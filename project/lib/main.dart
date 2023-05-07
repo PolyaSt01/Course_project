@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import "dart:io";
 import "mainscreen.dart";
-
 import 'package:flutter/services.dart' show rootBundle;
-
 
 class MyForm extends StatefulWidget {
   const MyForm({Key? key}) : super(key: key);
@@ -132,30 +129,25 @@ class MyFormState extends State<MyForm> {
                                                   if (computersCity != null){
                                                     result = computersCity;
 
-                                                    if (getLastLetter(computersCity) != userCityName[0]) {
+                                                    if (getLastLetter(computersCity) != generalView(userCityName[0])) {
                                                       result = 'Введите город с правильной буквы';
                                                       return;
                                                     }
                                                   }
 
+                                                  usedCityName.add(generalView(userCityName));
+
                                                   //ищем подходящий город для компьютера
-                                                  computersCity = fileContent.firstWhere((element) => element[0] == getLastLetter(generalView(userCityName)), orElse: () => 'Вы победили');
+                                                  computersCity = fileContent.firstWhere((element) => element[0] == getLastLetter(generalView(userCityName)) && usedCityName.indexOf(element, 0) == -1, orElse: () => '-1');
 
                                                   result = computersCity;
 
-                                                  //проверка на повторяемость города компьютера
-                                                  if(usedCityName.indexOf(computersCity, 0) != -1){
-                                                    result = 'Вы победили';
-                                                    return;
-                                                  }
-
-                                                  if (computersCity == 'Вы победили') {
+                                                  if (computersCity == '-1') {
                                                     result = 'Вы победили';
                                                     return;
                                                   }
 
                                                   usedCityName.add(computersCity);
-                                                  usedCityName.add(generalView(userCityName));
                                                 } else {
                                                   result = 'Введите другой город';
                                                   usedCityName.clear();
