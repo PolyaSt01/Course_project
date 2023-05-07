@@ -20,16 +20,15 @@ class MyFormState extends State<MyForm> {
 //проверка на буквы ь, ъ, ы, й на конце слова
   getLastLetter (var name) {
     const exceptLetters = ['ъ', 'ь', 'ы', 'й'];
-    var lastLatter = name[name.length - 1];
 
     if(name.length < 1){
-      return lastLatter;
-    } else if (exceptLetters.indexOf(lastLatter, 0) != -1 && exceptLetters.indexOf(name[name.length - 2], 0) != -1) {
+      return name[name.length - 1];
+    } else if (exceptLetters.indexOf(name[name.length - 1], 0) != -1 && exceptLetters.indexOf(name[name.length - 2], 0) != -1) {
       return name[name.length - 3];
-    } else if (exceptLetters.indexOf(lastLatter, 0) != -1) {
+    } else if (exceptLetters.indexOf(name[name.length - 1], 0) != -1) {
       return name[name.length - 2];
     } else {
-      return lastLatter;
+      return name[name.length - 1];
     }
   }
 
@@ -120,7 +119,7 @@ class MyFormState extends State<MyForm> {
                                           onPressed: () async {
                                             //получаем доступ к текстовому файлу и его данным
                                             var assetFileTxt = await rootBundle.loadString('assets/ct.txt');
-                                            var fileContent = assetFileTxt.split('\n');
+                                            var fileContent = assetFileTxt.split(',');
 
                                             if(_formKey.currentState!.validate()) {
                                               setState(() {
